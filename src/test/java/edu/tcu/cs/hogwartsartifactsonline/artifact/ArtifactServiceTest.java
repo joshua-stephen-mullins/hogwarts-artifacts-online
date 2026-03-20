@@ -20,8 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ArtifactServiceTest {
@@ -196,6 +195,43 @@ class ArtifactServiceTest {
 
         // then
         verify(artifactRepository, times(1)).findById("1250808601744904192");
+    }
+
+    @Test
+    void testDeleteSuccess() {
+        // given
+        Artifact artifact = new Artifact();
+        artifact.setId("1250808601744904192");
+        artifact.setName("Invisibility Cloak");
+        artifact.setDescription("An invisibility cloak is used to make the wearer invisible.");
+        artifact.setImageUrl("ImageUrl");
+
+
+        given(artifactRepository.findById("1250808601744904192")).willReturn(Optional.of(artifact));
+        doNothing().when(artifactRepository).deleteById("1250808601744904192");
+
+        // when
+        artifactService.delete("1250808601744904192");
+
+
+        // then
+        verify(artifactRepository, times(1)).deleteById("1250808601744904192");
+    }
+
+    @Test
+    void testDeleteNotFound() {
+        // given
+        given(this.artifactRepository.findById("1250808601744904192")).willReturn(Optional.empty());
+
+
+        // when
+        assertThrows(ArtifactNotFoundException.class, () -> {
+            this.artifactService.delete("1250808601744904192");
+        });
+
+
+        // then
+        verify(this.artifactRepository, times(1)).findById("1250808601744904192");
     }
 
 }
