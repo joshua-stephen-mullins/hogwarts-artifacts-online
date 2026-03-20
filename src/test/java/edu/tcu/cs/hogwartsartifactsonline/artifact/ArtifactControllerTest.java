@@ -1,5 +1,6 @@
 package edu.tcu.cs.hogwartsartifactsonline.artifact;
 
+import edu.tcu.cs.hogwartsartifactsonline.artifact.dto.ArtifactDto;
 import edu.tcu.cs.hogwartsartifactsonline.system.StatusCode;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,9 @@ class ArtifactControllerTest {
 
     @MockitoBean
     ArtifactService artifactService;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     List<Artifact> artifacts;
 
@@ -131,4 +136,31 @@ class ArtifactControllerTest {
                 .andExpect(jsonPath("$.data[1].name").value("Invisibility Cloak"));
     }
 
+    @Test
+    void testAddArtifactSuccess() throws Exception {
+        // given
+        ArtifactDto artifactDto = new ArtifactDto(null,
+                "Remembrall", "A Remembrall was a magical large marble-sized glass ball that contained smoke which turned red when its owner or user had forgotten something. It turned clear once whatever was forgotten was remembered.", "ImageUrl", null);
+        String json = this.objectMapper.writeValueAsString(artifactDto);
+
+
+        Artifact savedArtifact = new Artifact();
+        savedArtifact.setId("1250808601744904197");
+        savedArtifact.setName("Remembrall");
+        savedArtifact.setDescription("A Remembrall was a magical large marble-sized glass ball that contained smoke which turned red when its owner or user had forgotten something. It turned clear once whatever was forgotten was remembered.");
+        savedArtifact.setImageUrl("ImageUrl");
+
+
+        given(this.artifactService.save(Mockito.any(Artifact.class))).willReturn(savedArtifact);
+
+        // when and then
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/artifacts").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flag").value(true))
+                .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+                .andExpect(jsonPath("$.message").value("Add Success"))
+                .andExpect(jsonPath("$.data.id").isNotEmpty())
+                .andExpect(jsonPath("$.data.name").value(savedArtifact.getName()))
+                .andExpect(jsonPath("$.data.description").value(savedArtifact.getDescription()))
+                .andExpect(jsonPath("$.data.imageUrl").value(savedArtifact.getImageUrl()));
+    }
 }
