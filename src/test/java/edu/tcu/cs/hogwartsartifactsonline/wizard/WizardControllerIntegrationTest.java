@@ -128,6 +128,7 @@ class WizardControllerIntegrationTest {
 
     @Test
     @DisplayName("Check updateWizard with valid input (PUT)")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testUpdateWizardSuccess() throws Exception {
         Wizard a = new Wizard();
         a.setId(1);
@@ -161,6 +162,7 @@ class WizardControllerIntegrationTest {
 
     @Test
     @DisplayName("Check updateWizard with invalid input (PUT)")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testUpdateWizardErrorWithInvalidInput() throws Exception {
         Wizard a = new Wizard();
         a.setId(1);
@@ -183,6 +185,7 @@ class WizardControllerIntegrationTest {
 
     @Test
     @DisplayName("Check deleteWizard with valid input (DELETE)")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     void testDeleteWizardSuccess() throws Exception {
         this.mockMvc.perform(delete(this.baseUrl + "/wizards/3").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
                 .andExpect(jsonPath("$.flag").value(true))
